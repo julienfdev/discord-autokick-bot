@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// Really simple user schema, storing userId and if said user has already reacted to the server rules and said hello
 const UserSchema = mongoose.Schema({
     uniqueId: { type: String, required: true, unique: true},
     username: { type: String, required: true },

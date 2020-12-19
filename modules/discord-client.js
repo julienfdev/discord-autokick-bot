@@ -1,15 +1,14 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
 const logger = require('./logger');
-const methods = require('./discord-methods');
+// const methods = require('./discord-methods'); // Debug
 
 const connectBot = async (token) => {
     try {
-        await client.login(token);
+        await client.login(token);      // Even if we wait for the promise to resolve, we can't cache anything immediately, weird
         logger.log('Discord bot Online')
         setTimeout(async () => {
-            //methods.listChannels()
-            //methods.setExistingMembers();
+            // Even after the promise resolved, we need to wait a little before caching or querying the guild, put your code here
         }, 2000)
 
     } catch (error) {
