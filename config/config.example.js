@@ -28,6 +28,7 @@ const config = {
     },
     commands:{
         prefix: '$',
+        defaultReply: '<missing_command_reply>',
         haikuUrl: 'you need to figure this out yourself',
         haikuParameters: {
             // An object with the urlSearchParams
