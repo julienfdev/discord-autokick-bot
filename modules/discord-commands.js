@@ -27,6 +27,13 @@ const haiku = async (message) =>{
     const responseObject = await fetch(url)
     let responseString = await responseObject.text();
 
+    // Replying to the message
+    const replyString = haikuParser(responseString);
+    message.reply(`\n${replyString}`);
+}
+
+// need to be adapted to your Haiku generator
+const haikuParser = (responseString) =>{
     // Parsing reply string
     responseString = responseString.replace('<div>', '');
     responseString = responseString.replace('</div>', '');
@@ -37,10 +44,7 @@ const haiku = async (message) =>{
     for(let string of responseArray){
         replyArray.push(string.trim());
     }
-    const replyString = replyArray.join('\n');
-
-    // Replying to the message
-    message.reply(`\n${replyString}`);
+    return replyArray.join('\n');
 }
 
 module.exports = commandHandler;
