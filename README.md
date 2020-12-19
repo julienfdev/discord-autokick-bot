@@ -16,6 +16,7 @@ On your Discord server, you need to set-up quite a few things :
 - The @everyone pseudo-role shouldn't have access to anything but a "Rules" channel
 - Post a message into the rules channels with the rules you want the users to react to
 - You need to react to the message with the emoji you want your users to react with
+- Set-up a channel you want your bot to send a mean message when a user leaves
 - You need to create a role which can access the other channels once the user has reacted to the "rules" post
 - Obviously, you need to set-up your permissions as usual to prevent anybody to post into the Rules channel
 
