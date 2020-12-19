@@ -4,6 +4,7 @@ const discordClient = require('./modules/discord-client');
 const listener = require('./modules/discord-listeners');
 const methods = require('./modules/discord-methods');
 const User = require('./models/User');
+const commandHandler = require('./modules/discord-commands');
 
 // Database connection
 mongooseConnect.init(config.mongoose);
@@ -16,4 +17,5 @@ listener.updateReactionUser(discordClient.client, User);
 listener.updateSaidHelloUser(discordClient.client, User);
 listener.setKickWatcher(discordClient.client, User, config.kickDelay);
 
-//Methods
+//Commands
+commandHandler(discordClient.client);

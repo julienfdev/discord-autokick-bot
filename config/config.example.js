@@ -25,6 +25,13 @@ const config = {
     discordText: {
         userLeftMessage : "a mean message when the user left or is being kicked",
         kickMessage: 'kick reason string'
+    },
+    commands:{
+        prefix: '$',
+        haikuUrl: 'you need to figure this out yourself',
+        haikuParameters: {
+            // An object with the urlSearchParams
+        }
     }
 };
 
