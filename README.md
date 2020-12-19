@@ -1,6 +1,6 @@
 # discord-autokick-bot
 
-A Node.js Discord bot which kicks anyone who doesn't introduce himself within a set delay, it grants access to the whole server once the user has reacted to the rules of the server
+A Node.js Discord bot which kicks anyone who doesn't introduce himself within a set delay, it grants access to the whole server once the user has reacted to the rules of the server. It also features a fully functional command handler
 
 ## Prerequisites
 
