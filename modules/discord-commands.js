@@ -1,3 +1,4 @@
+const Discord = require('discord.js');
 const commandConfig = require('../config/config').commands;
 const discordConfig = require('../config/config').discordConfig;
 const fetch = require('node-fetch');
@@ -81,14 +82,26 @@ const metarHandler = async (message, args) =>{
     if (args.length > 1) return message.reply(commandConfig.metar.messageTooManyArgs);
     if(!args[0].match(/[A-Za-z]{4}/g)) return message.reply(commandConfig.metar.messageNotAMetar);
 
-    const url = new URL(`${commandConfig.metar.avwxUrl}/${args[0]}`);
-    
-    const fetchResponse = await fetch(url, {
-        headers: { 'Authorization': `TOKEN ${commandConfig.metar.avwxToken}`}
+    const metarUrl = new URL(`${commandConfig.metar.avwxUrl}/${args[0]}`);
+    const stationUrl = new URL(`${commandConfig.metar.avwxStationUrl}/${args[0]}`);
+    const headers = { 'Authorization': `TOKEN ${commandConfig.metar.avwxToken}`}
+
+    const fetchResponse = await fetch(metarUrl, {
+        headers
     })
     if(fetchResponse.status === 200){
         const fetchObject = await fetchResponse.json();
-        message.reply(formatMetarString(commandConfig.metar.messageMetar, fetchObject));
+        const fetchStationResponse = await fetch(stationUrl,{
+            headers
+        });
+        if(fetchStationResponse.status === 200){
+            const stationObject = await fetchStationResponse.json();
+            message.reply(formatMetarString(commandConfig.metar.messageMetar, fetchObject, stationObject));
+        }
+        else{
+            message.reply(formatMetarString(commandConfig.metar.messageMetar, fetchObject));
+        }
+
     }
     else{
         message.reply(commandConfig.metar.messageMetarNotFound);
@@ -165,8 +178,13 @@ const formatKickString = (string, member) =>{
     return string.replace('[member]', `<@${member.user.id}>`);
 };
 
-const formatMetarString = (string, responseObject) =>{
-    return string.replace('[ICAO]', responseObject.station).replace('[METAR]', responseObject.sanitized);
+const formatMetarString = (string, responseObject, stationObject) =>{
+    if(stationObject){
+        return string.replace(`[ICAO]`, stationObject.name).replace(`[METAR]`, responseObject.sanitized).replace(' Airport', '');
+    }
+    else{
+        return string.replace('[ICAO]', responseObject.station).replace('[METAR]', responseObject.sanitized);
+    }
 };
 
 module.exports = commandHandler;
