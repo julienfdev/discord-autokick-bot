@@ -138,8 +138,76 @@ const setKickWatcher = async (client, User, delay) => {
     }, config.kickCheckInterval);
 }
 
+const setIcaoWatcher = async (client, Airfield) => {
+    const guild = client.guilds.fetch(discordConfig.guildId);
+    // We set a message eventListener
+    client.on('message', async (message) => {
+        // First we need to make sure the user is not typing a command
+        if (message.content.startsWith(config.commands.prefix)) return;
+        // We need to make sure a bot isn't issuing the message
+        if (message.author.bot) return;
+
+        // Now that we know he's not, we need to match every 4 letters word ignoring case
+        const regExIcao = new RegExp(/LF[a-z]{2}/gi);
+
+        let potentialIcaoArray = [];
+        let potentialIcao = []
+        let i = 0;
+
+        // We first loop through the message to find all the ICAO codes
+        while ((potentialIcao = regExIcao.exec(message.content)) && i < 10) {
+            potentialIcaoArray.push(potentialIcao);
+            i++;
+        }
+        // We can reset the regex index
+        regExIcao.lastIndex = 0;
+
+        const icaoArray = [];
+        let promisesResolved = 0;
+
+        // Now for each item into this array, we search a match, edit the content and iterate again
+        potentialIcaoArray.forEach(async (icaoFound, index, array) => {
+            // We once again get the ICAO with the index (it has a purpose, yes...)
+            const icao = regExIcao.exec(message.content);
+            const matchingAirfield = await Airfield.findOne({
+                icao: Object.values(icao)[0].toUpperCase()
+            });
+
+            if(matchingAirfield){
+                icaoArray.push(matchingAirfield);
+            }
+            promisesResolved++;
+            if (promisesResolved === array.length) {
+                sendReply();
+            }
+        });
+
+        const sendReply = () => {
+            let stringToSend = message.content;
+            let modified = false;
+            if (icaoArray.length) {
+                for (icao of icaoArray) {
+
+                    // If there already are some Words, we forget the replace
+                    const wordsToSearch = icao.airfieldName.split('-');
+                    const searchRegEx = new RegExp(`${wordsToSearch.join('|')}`, 'ig');
+                    if(!stringToSend.match(searchRegEx)){
+                        const replaceRegExp = new RegExp(icao.icao, 'ig');
+                        stringToSend = stringToSend.replace(replaceRegExp, `${icao.icao} *- ${icao.airfieldName} -*`);
+                        modified = true;
+                    }
+                }
+                if(modified){
+                    message.reply(`Je crois que ce que t'as voulu dire c'est plutôt :\n >>> ${stringToSend}`);
+                }
+            }
+        }
+    });
+}
+
 module.exports.watchForNewUser = watchForNewUser;
 module.exports.flushLeavingUser = flushLeavingUser;
 module.exports.updateReactionUser = updateReactionUser;
 module.exports.updateSaidHelloUser = updateSaidHelloUser;
 module.exports.setKickWatcher = setKickWatcher;
+module.exports.setIcaoWatcher = setIcaoWatcher;

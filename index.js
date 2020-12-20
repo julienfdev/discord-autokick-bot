@@ -4,6 +4,7 @@ const discordClient = require('./modules/discord-client');
 const listener = require('./modules/discord-listeners');
 const methods = require('./modules/discord-methods');
 const User = require('./models/User');
+const Airfield = require('./models/Airfield');
 const commandHandler = require('./modules/discord-commands');
 
 // Database connection
@@ -16,6 +17,7 @@ listener.flushLeavingUser(discordClient.client, User);
 listener.updateReactionUser(discordClient.client, User);
 listener.updateSaidHelloUser(discordClient.client, User);
 listener.setKickWatcher(discordClient.client, User, config.kickDelay);
+listener.setIcaoWatcher(discordClient.client, Airfield)
 
 //Commands
 commandHandler(discordClient.client);
