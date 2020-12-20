@@ -27,6 +27,9 @@ const commandHandler = async (client) => {
                     message.reply(commandConfig.kick.messageUnauthorized);
                 }
                 break;
+            case 'metar':
+                metarHandler(message, args)
+                break;
             default:
                 message.reply(commandConfig.defaultReply);
                 break;
@@ -70,6 +73,28 @@ const kickHandler = async (client, message, args) => {
         logger.error(error.message);
     }
 }
+
+const metarHandler = async (message, args) =>{
+
+    // Validation
+    if (!args.length) return message.reply(commandConfig.metar.messageMissingArg);
+    if (args.length > 1) return message.reply(commandConfig.metar.messageTooManyArgs);
+    if(!args[0].match(/[A-Za-z]{4}/g)) return message.reply(commandConfig.metar.messageNotAMetar);
+
+    const url = new URL(`${commandConfig.metar.avwxUrl}/${args[0]}`);
+    
+    const fetchResponse = await fetch(url, {
+        headers: { 'Authorization': `TOKEN ${commandConfig.metar.avwxToken}`}
+    })
+    if(fetchResponse.status === 200){
+        const fetchObject = await fetchResponse.json();
+        message.reply(formatMetarString(commandConfig.metar.messageMetar, fetchObject));
+    }
+    else{
+        message.reply(commandConfig.metar.messageMetarNotFound);
+    }
+
+};
 
 // need to be adapted to your Haiku generator
 const haikuParser = (responseString) => {
@@ -138,6 +163,10 @@ const protectedRole = (roles, protectedRoles) =>{
 
 const formatKickString = (string, member) =>{
     return string.replace('[member]', `<@${member.user.id}>`);
+};
+
+const formatMetarString = (string, responseObject) =>{
+    return string.replace('[ICAO]', responseObject.station).replace('[METAR]', responseObject.sanitized);
 };
 
 module.exports = commandHandler;
