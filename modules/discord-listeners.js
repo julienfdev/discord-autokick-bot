@@ -149,59 +149,42 @@ const setIcaoWatcher = async (client, Airfield) => {
 
         // Now that we know he's not, we need to match every 4 letters word ignoring case
         const regExIcao = new RegExp(/LF[a-z]{2}/gi);
-
-        let potentialIcaoArray = [];
-        let potentialIcao = []
-        let i = 0;
-
-        // We first loop through the message to find all the ICAO codes
-        while ((potentialIcao = regExIcao.exec(message.content)) && i < 10) {
-            potentialIcaoArray.push(potentialIcao);
-            i++;
+        // We extract the potential candidates
+        const arraySearch = message.content.match(regExIcao);
+        let arrayFoundIcao = []
+        // If we've got candidates, we query the database and store the promises in the array
+        if (arraySearch.length) {
+            for (candidate of arraySearch) {
+                arrayFoundIcao.push(Airfield.findOne({
+                    icao: candidate.toUpperCase()
+                }));
+            }
         }
-        // We can reset the regex index
-        regExIcao.lastIndex = 0;
-
-        const icaoArray = [];
-        let promisesResolved = 0;
-
-        // Now for each item into this array, we search a match, edit the content and iterate again
-        potentialIcaoArray.forEach(async (icaoFound, index, array) => {
-            // We once again get the ICAO with the index (it has a purpose, yes...)
-            const icao = regExIcao.exec(message.content);
-            const matchingAirfield = await Airfield.findOne({
-                icao: Object.values(icao)[0].toUpperCase()
-            });
-
-            if(matchingAirfield){
-                icaoArray.push(matchingAirfield);
-            }
-            promisesResolved++;
-            if (promisesResolved === array.length) {
-                sendReply();
-            }
-        });
-
-        const sendReply = () => {
+        // Once all promises have resolved
+        Promise.all(arrayFoundIcao).then(icaoCodes => {
             let stringToSend = message.content;
             let modified = false;
-            if (icaoArray.length) {
-                for (icao of icaoArray) {
-
-                    // If there already are some Words, we forget the replace
-                    const wordsToSearch = icao.airfieldName.split('-');
-                    const searchRegEx = new RegExp(`${wordsToSearch.join('|')}`, 'ig');
-                    if(!stringToSend.match(searchRegEx)){
-                        const replaceRegExp = new RegExp(icao.icao, 'ig');
-                        stringToSend = stringToSend.replace(replaceRegExp, `${icao.icao} *- ${icao.airfieldName} -*`);
-                        modified = true;
+            // And the icao candidates are actual icao codes, at least 1
+            if (icaoCodes.length) {
+                for (icao of icaoCodes) {
+                    if (icao !== null) {
+                        // If we don't find any words related to the Airfield Name in the message, we replace the expression
+                        const wordsToSearch = icao.airfieldName.split('-');
+                        const searchRegEx = new RegExp(`${wordsToSearch.join('|')}`, 'ig');
+                        if (!stringToSend.match(searchRegEx)) {
+                            // Using a regex allows to ignore case sensitivity
+                            const replaceRegExp = new RegExp(icao.icao, 'ig');
+                            stringToSend = stringToSend.replace(replaceRegExp, `${icao.icao} *- ${icao.airfieldName} -*`);
+                            modified = true;
+                        }
                     }
                 }
-                if(modified){
+                if (modified) {
                     message.reply(`Je crois que ce que t'as voulu dire c'est plutôt :\n >>> ${stringToSend}`);
                 }
             }
-        }
+        })
+
     });
 }
 
