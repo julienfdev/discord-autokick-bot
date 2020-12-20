@@ -147,12 +147,12 @@ const setIcaoWatcher = async (client, Airfield) => {
         // We need to make sure a bot isn't issuing the message
         if (message.author.bot) return;
 
-        // Now that we know he's not, we need to match every 4 letters word ignoring case
+        // Now that we know the user not typing a command and is not a bot, we need to match every 4 letters word ignoring case
         const regExIcao = new RegExp(/LF[a-z]{2}/gi);
         // We extract the potential candidates
         const arraySearch = message.content.match(regExIcao);
         let arrayFoundIcao = []
-        // If we've got candidates, we query the database and store the promises in the array
+        // If we've got candidates, we query the database and store the Promises in the array
         if (arraySearch.length) {
             for (candidate of arraySearch) {
                 arrayFoundIcao.push(Airfield.findOne({
@@ -160,7 +160,7 @@ const setIcaoWatcher = async (client, Airfield) => {
                 }));
             }
         }
-        // Once all promises have resolved
+        // Once all async Promises have resolved
         Promise.all(arrayFoundIcao).then(icaoCodes => {
             let stringToSend = message.content;
             let modified = false;
@@ -168,7 +168,7 @@ const setIcaoWatcher = async (client, Airfield) => {
             if (icaoCodes.length) {
                 for (icao of icaoCodes) {
                     if (icao !== null) {
-                        // If we don't find any words related to the Airfield Name in the message, we replace the expression
+                        // If we don't find any words related to the Airfield Name in the message, we complete the expression
                         const wordsToSearch = icao.airfieldName.split('-');
                         const searchRegEx = new RegExp(`${wordsToSearch.join('|')}`, 'ig');
                         if (!stringToSend.match(searchRegEx)) {
@@ -180,7 +180,7 @@ const setIcaoWatcher = async (client, Airfield) => {
                     }
                 }
                 if (modified) {
-                    message.reply(`Je crois que ce que t'as voulu dire c'est plutôt :\n >>> ${stringToSend}`);
+                    message.reply(config.commands.icao.messageReply.replace('[MESSAGE]', stringToSend));
                 }
             }
         })
