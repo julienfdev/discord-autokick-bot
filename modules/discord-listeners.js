@@ -153,7 +153,7 @@ const setIcaoWatcher = async (client, Airfield) => {
         const arraySearch = message.content.match(regExIcao);
         let arrayFoundIcao = []
         // If we've got candidates, we query the database and store the Promises in the array
-        if (arraySearch.length) {
+        if (arraySearch) {
             for (candidate of arraySearch) {
                 arrayFoundIcao.push(Airfield.findOne({
                     icao: candidate.toUpperCase()
@@ -165,7 +165,7 @@ const setIcaoWatcher = async (client, Airfield) => {
             let stringToSend = message.content;
             let modified = false;
             // And the icao candidates are actual icao codes, at least 1
-            if (icaoCodes.length) {
+            if (icaoCodes) {
                 for (icao of icaoCodes) {
                     if (icao !== null) {
                         // If we don't find any words related to the Airfield Name in the message, we complete the expression
@@ -184,9 +184,8 @@ const setIcaoWatcher = async (client, Airfield) => {
                 }
             }
         })
-
     });
-}
+};
 
 module.exports.watchForNewUser = watchForNewUser;
 module.exports.flushLeavingUser = flushLeavingUser;
