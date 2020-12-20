@@ -1,6 +1,6 @@
 # discord-autokick-bot
 
-A Node.js Discord bot which kicks anyone who doesn't introduce himself within a set delay, it grants access to the whole server once the user has reacted to the rules of the server. It also features a fully functional command handler
+A Node.js Discord bot which kicks anyone who doesn't introduce himself within a set delay, it grants access to the whole server once the user has reacted to the rules of the server. It also features a fully functional command handler and various watchers
 
 ## Prerequisites
 
@@ -31,3 +31,16 @@ Install missing dependencies :
 Test the bot or run an instance of PM2 :
 
 ```node index```
+
+## Features
+
+The bot can handles many tasks, including fetching API requests and database processing
+
+### Feature set (as of 2020-12-20)
+
+- Sandboxing new users who haven't agreed to rules yet
+- Kicking rude users who doesn't post to introduce themselves
+- Haiku generator (using external APIs)
+- METAR (aviation weather) reader (using AVWX REST API)
+- Elaborated kick routine
+- Deep RegEx matching for extracting orphan ICAO codes (airport identification codes) inside messages and formatting replies
