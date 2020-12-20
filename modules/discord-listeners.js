@@ -138,6 +138,12 @@ const setKickWatcher = async (client, User, delay) => {
     }, config.kickCheckInterval);
 }
 
+/* 
+** When a message is sent, this watcher looks for orphans ICAO codes :
+** Without the Airfield name mentioned, it can be a pain in the ass to read,
+** Thus, this watcher tries to match the ICAO code with a related Airfield name (see Airfield model) in database
+** You can find jsons or geojsons onto various websites, and just need to parse them to fit the simple model
+*/ 
 const setIcaoWatcher = async (client, Airfield) => {
     const guild = client.guilds.fetch(discordConfig.guildId);
     // We set a message eventListener
