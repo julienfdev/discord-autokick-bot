@@ -19,3 +19,5 @@ listener.setKickWatcher(discordClient.client, User, config.kickDelay);
 
 //Commands
 commandHandler(discordClient.client);
+
+// Methods
